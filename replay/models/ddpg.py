@@ -595,7 +595,7 @@ class DDPG(TorchRecommender):
         train_data = train_data.values.tolist()
            
         #######################################################################################
-        print(f'TRAIN_DATA: {np.array(train_data).shape}, TEST DATA: {np.array(test_data).shape}')
+#         print(f'TRAIN_DATA: {np.array(train_data).shape}, TEST DATA: {np.array(test_data).shape}')
         #######################################################################################  
         
         train_mat = defaultdict(float)
@@ -767,6 +767,11 @@ class DDPG(TorchRecommender):
             matrix=test_matrix  # , item_count=current_item_num
         )
         users = np.random.permutation(appropriate_users)
+        
+        ####################################################################################
+        display(pd.DataFrame(test_data).head())
+        ####################################################################################
+        
         valid_loader = self._get_data_loader(
             np.array(test_data)[np.array(test_data)[:, 0] == 16],
             current_item_num,
