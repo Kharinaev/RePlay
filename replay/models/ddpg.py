@@ -589,11 +589,15 @@ class DDPG(TorchRecommender):
             .index
         )
         #######################################################################################
-        print(f'DATA IDX: {data.index.shape}, TRAIN IDX: {train_data.index.shape}')
+#         print(f'DATA IDX: {data.index.shape}, TRAIN IDX: {train_data.index.shape}')
         #######################################################################################
         test_data = data.drop(train_data.index).values.tolist()
         train_data = train_data.values.tolist()
-
+           
+        #######################################################################################
+        print(f'TRAIN_DATA: {np.array(train_data).shape}, TEST DATA: {np.array(test_data).shape}')
+        #######################################################################################  
+        
         train_mat = defaultdict(float)
         test_mat = defaultdict(float)
         for user, item, rel in train_data:
