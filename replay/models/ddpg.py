@@ -771,6 +771,8 @@ class DDPG(TorchRecommender):
         ####################################################################################
         display(pd.DataFrame(test_data).head())
         print(pd.Series(np.array(test_data)[:,0]).value_counts())
+        print(f'NUM: {(np.array(test_data)[:,0] == 16).sum()}')
+        print(f'SHAPE : {np.array(test_data)[np.array(test_data)[:, 0] == 16].shape}')
         ####################################################################################
         
         valid_loader = self._get_data_loader(
