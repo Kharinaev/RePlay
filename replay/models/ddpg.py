@@ -588,6 +588,9 @@ class DDPG(TorchRecommender):
             .value_counts()[train_data["user_idx"].value_counts() > 10]
             .index
         )
+        #######################################################################################
+        print(f'DATA IDX: {data.index.shape}, TRAIN IDX: {train_data.index.shape}')
+        #######################################################################################
         test_data = data.drop(train_data.index).values.tolist()
         train_data = train_data.values.tolist()
 
