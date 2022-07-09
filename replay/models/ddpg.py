@@ -769,17 +769,17 @@ class DDPG(TorchRecommender):
         users = np.random.permutation(appropriate_users)
         
         ####################################################################################
-        display(pd.DataFrame(test_data).head())
-        print(pd.Series(np.array(test_data)[:,0]).value_counts())
-        print(f'NUM: {(np.array(test_data)[:,0] == 16).sum()}')
-        print(f'SHAPE : {np.array(test_data)[np.array(test_data)[:, 0] == 16].shape}')
+#         display(pd.DataFrame(test_data).head())
+#         print(pd.Series(np.array(test_data)[:,0]).value_counts())
+#         print(f'NUM: {(np.array(test_data)[:,0] == 16).sum()}')
+#         print(f'SHAPE : {np.array(test_data)[np.array(test_data)[:, 0] == 16].shape}')
         ####################################################################################
         
-        valid_loader = self._get_data_loader(
-            np.array(test_data)[np.array(test_data)[:, 0] == 16],
-            current_item_num,
-            test_matrix,
-        )
+#         valid_loader = self._get_data_loader(
+#             np.array(test_data)[np.array(test_data)[:, 0] == 16],
+#             current_item_num,
+#             test_matrix,
+#         )
 
         self.ou_noise = OUNoise(
             self.embedding_dim,
