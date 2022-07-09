@@ -770,6 +770,7 @@ class DDPG(TorchRecommender):
         
         ####################################################################################
         display(pd.DataFrame(test_data).head())
+        print(pd.DataFrame(test_data)[:,0].value_counts())
         ####################################################################################
         
         valid_loader = self._get_data_loader(
