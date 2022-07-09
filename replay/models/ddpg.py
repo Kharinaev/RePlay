@@ -249,8 +249,7 @@ class Env:
         self.item_count = item_num
         self.user_count = user_num
         self.N = N
-#         self.memory = np.ones([user_num, N]) * item_num
-        self.memory = np.ones([user_num, item_num]) * N
+        self.memory = np.ones([user_num, N]) * item_num
 
     def update_env(self, matrix=None, item_count=None, memory=None):
         if item_count is not None:
