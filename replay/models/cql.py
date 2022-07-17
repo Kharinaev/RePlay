@@ -99,9 +99,15 @@ class CQL(TorchRecommender):
     
     def __init__(
         self,
-        params
+        **params
     ):
         super().__init__()
+        if 'k' in params:
+            self.k = params['k']
+            params.pop('k', None)
+        if 'n_epochs' in params:
+            self.n_epochs = params['n_epochs']
+            params.pop('n_epochs', None)
         self.model = CQL_d3rlpy.CQL(**params)
 
     def _predict(
@@ -113,19 +119,19 @@ class CQL(TorchRecommender):
         user_features: Optional[pyspark.sql.DataFrame] = None,
         item_features: Optional[pyspark.sql.DataFrame] = None,
         filter_seen_items: bool = True,
-        print_out: bool = True
+        # print_out: bool = True
     ) -> pyspark.sql.DataFrame:
         
         test = log.toPandas()
 
-        users = users.toPandas().to_numpy()
-        items = items.toPandas().to_numpy()
+        users = users.toPandas().to_numpy().flatten()
+        items = items.toPandas().to_numpy().flatten()
 
-        if print_out:
-            print(f'Users: {len(users)}, items: {len(items)}')
+        # if print_out:
+        print(f'Users: {len(users)}, items: {len(items)}')
         pred = pd.DataFrame()
         
-        progress = tqdm(users, desc='User') if print_out else users
+        progress = tqdm.auto.tqdm(users, desc='User')
         for user in progress:
             matrix = pd.DataFrame({'user_idx' : np.repeat(user, len(items)), 
                                    'item_idx' : items})
@@ -133,34 +139,35 @@ class CQL(TorchRecommender):
             top = matrix.sort_values('relevance', ascending=False).head(k)
             pred = pd.concat((pred, top))
         
+        pred = pred.rename(columns={'user_idx' : 'user_id',
+                             'item_idx' : 'item_id'})
         preparator = DataPreparator()
         pred, _, _ = preparator(pred)
 
         return pred
-    
 
     def _fit(
         self,
-        log: pyspark.sql.DataFrame,
-        k : int,
-        params
+        log: DataFrame,
+        user_features: Optional[DataFrame] = None,
+        item_features: Optional[DataFrame] = None,
     ) -> None:
         
-        train = self._prepare_data(log.toPandas(), k)
-        self.model(train, **params)
+        train = self._prepare_data(log.toPandas(), self.k)
+        self.model.fit(train, n_epochs=self.n_epochs)
 
     def _prepare_data(self, df, k : int):
         gb = df.sort_values('timestamp').groupby('user_idx')    
         list_dfs = [gb.get_group(x) for x in gb.groups]
         df_s = pd.concat(list_dfs)
-        display(df_s)
-        #reward top-K and later watched movies with 1, other - 0
+
+        #   reward top-K and later watched movies with 1, other - 0
         idxs = df_s.sort_values(['relevance', 'timestamp'], ascending=False).groupby('user_idx').head(k).index
         rewards = np.zeros(len(df_s))
         rewards[idxs] = 1
         df_s['rewards'] = rewards
 
-        #every user has his own episode (for the latest movie terminals has 1, other - 0)
+        #   every user has his own episode (for the latest movie terminals has 1, other - 0)
         user_change = (df_s.user_idx != df_s.user_idx.shift())
         terminals = np.zeros(len(df_s))
         terminals[user_change] = 1
@@ -168,10 +175,11 @@ class CQL(TorchRecommender):
         df_s['terminals'] = terminals
 
         train_dataset = MDPDataset(
-            observations = np.array(train[['user_idx', 'item_idx']]),
-            actions = train['relevance'],
-            rewards = train['rewards'],
-            terminals = train['terminals']
+            observations = np.array(df_s[['user_idx', 'item_idx']]),
+            actions = np.array(df_s['relevance'] +
+                               0.1 * np.random.randn(len(df_s)))[:, None],
+            rewards = df_s['rewards'],
+            terminals = df_s['terminals']
         )
         return train_dataset
     
