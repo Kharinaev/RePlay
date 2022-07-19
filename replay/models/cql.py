@@ -2,7 +2,7 @@
 # For 'alpha' version PySpark DataFrame converts to Pandas
 
 import pickle
-import tqdm
+from tqdm.auto import tqdm
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -131,7 +131,7 @@ class CQL(TorchRecommender):
         print(f'Users: {len(users)}, items: {len(items)}')
         pred = pd.DataFrame()
         
-        progress = tqdm.auto.tqdm(users, desc='User')
+        progress = tqdm(users, desc='User')
         for user in progress:
             matrix = pd.DataFrame({'user_idx' : np.repeat(user, len(items)), 
                                    'item_idx' : items})
