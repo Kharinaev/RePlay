@@ -588,15 +588,9 @@ class DDPG(TorchRecommender):
             .value_counts()[train_data["user_idx"].value_counts() > 10]
             .index
         )
-        #######################################################################################
-#         print(f'DATA IDX: {data.index.shape}, TRAIN IDX: {train_data.index.shape}')
-        #######################################################################################
         test_data = data.drop(train_data.index).values.tolist()
         train_data = train_data.values.tolist()
            
-        #######################################################################################
-#         print(f'TRAIN_DATA: {np.array(train_data).shape}, TEST DATA: {np.array(test_data).shape}')
-        #######################################################################################  
         
         train_mat = defaultdict(float)
         test_mat = defaultdict(float)
@@ -767,13 +761,6 @@ class DDPG(TorchRecommender):
             matrix=test_matrix  # , item_count=current_item_num
         )
         users = np.random.permutation(appropriate_users)
-        
-        ####################################################################################
-#         display(pd.DataFrame(test_data).head())
-#         print(pd.Series(np.array(test_data)[:,0]).value_counts())
-#         print(f'NUM: {(np.array(test_data)[:,0] == 16).sum()}')
-#         print(f'SHAPE : {np.array(test_data)[np.array(test_data)[:, 0] == 16].shape}')
-        ####################################################################################
         
 #         valid_loader = self._get_data_loader(
 #             np.array(test_data)[np.array(test_data)[:, 0] == 16],
